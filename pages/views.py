@@ -1,4 +1,5 @@
 # pages/views.py
+from pages.models import Item, ToDoList
 from django.shortcuts import render, HttpResponseRedirect
 from django.http import Http404
 from django.urls import reverse
@@ -46,6 +47,16 @@ def homePost(request):
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         return HttpResponseRedirect(reverse('results', kwargs={'choice': choice, 'gmat': gmat}, ))
+
+def todos(request):
+    print("*** Inside todos()")
+    items = Item.objects
+    itemErrandDetail = items.select_related('todolist')
+    print(itemErrandDetail[0].todolist.name)
+    return render(request, 'ToDoItems.html',
+                {'ToDoItemDetail': itemErrandDetail,
+                        'ItemDetail': items})
+
 
 
 def results(request, choice, gmat):
