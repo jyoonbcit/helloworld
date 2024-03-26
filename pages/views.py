@@ -4,6 +4,7 @@ from django.shortcuts import render, HttpResponseRedirect
 from django.http import Http404
 from django.urls import reverse
 from django.views.generic import TemplateView
+from django.contrib.auth import logout
 
 def homePageView(request):
     # return request object and specify page.
@@ -62,3 +63,37 @@ def todos(request):
 def results(request, choice, gmat):
     print("*** Inside results()")
     return render(request, 'results.html', {'choice': choice, 'gmat': gmat})
+
+from django.shortcuts import render, redirect
+from .forms import RegisterForm
+
+def register(response):
+    # Handle POST request.
+    if response.method == "POST":
+        form = RegisterForm(response.POST)
+        if form.is_valid():
+            form.save()
+
+            return HttpResponseRedirect(reverse('message',
+                                                kwargs={'msg': "Your are registered.", 'title': "Success!"}, ))
+
+    # Handle GET request.
+    else:
+        form = RegisterForm()
+    return render(response, "registration/register.html", {"form":form})
+
+def message(request, msg, title):
+    return render(request, 'message.html', {'msg': msg, 'title': title })
+
+def logoutView(request):
+    logout(request)
+    print("*****  You are logged out.")
+    return HttpResponseRedirect(reverse('home' ))
+
+def secretArea(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('message',
+               kwargs={'msg': "Please login to access this page.",
+                       'title': "Login required."}, ))
+    return render(request, 'secret.html', {'useremail': request.user.email })
+
